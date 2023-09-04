@@ -1,0 +1,42 @@
+version: '3.8'
+services:
+  mongodb:
+    image: mongo
+    container_name: my-mongodb
+    volumes:
+      - mongodbdata:/data/db
+    ports:
+      - "27017:27017"
+    networks:
+      - mern-net
+  backend:
+    build:
+      context: './server'
+      dockerfile: Dockerfile
+    ports:
+      - 5000:5000
+    container_name: express-container
+    networks:
+      - mern-net
+    depends_on:
+      - mongodb
+  front:
+    stdin_open: true
+    tty: true
+    build:
+      context: './client'
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    container_name: react-container
+    environment:
+      - WATCHPACK_POLLING=true
+    networks:
+      - mern-net
+    depends_on:
+      - backend
+
+volumes:
+  mongodbdata:
+networks:
+  mern-net:
